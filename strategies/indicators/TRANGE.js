@@ -45,4 +45,4 @@ Indicator.prototype.update = function(candle) {
     this.lastcandle=candle;
 }
 
-module.exports = Indicator;
+    module.exports = Indicator;

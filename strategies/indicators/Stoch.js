@@ -1,96 +1,76 @@
-// STC coded by Gab0 03/29/2018;
-//settings: short, long, signal, cycle, smooth;
-var MACD = require('./MACD');
-var STOCH = require('./STOCH');
+// Stochastic Oscillator Slow - STOCH
+// Ported by Gab0 march-2018
+// ref http://www.tadoc.org/indicator/STOCH.htm
+// state: badly coded, uncertain results;
 
-var Indicator = function (settings) {
-    this.input = 'price';
+var SMA = require('./SMA');
+var _ = require('lodash');
 
-    this.signal = new MACD({'short': settings.short,
-                            'long': settings.long,
-                            'signal': settings.signal});
-
-    this.MACDs = [];
-    this.PFs = [];
-    this.Frac1 = 0;
-    this.Frac2 = 0;
-    this.Cycle = settings.cycle;
-    this.Factor = settings.smooth;
+var Indicator = function(settings) {
+    this.input = 'candle';
+    this.prices = [];
+    this.result = 0;
     this.age = 0;
-};
+    this.sum = 0;
+    this.K =0;
+    this.D =0;
+    this.candles = [];
+    this.KPeriods = settings.KPeriods;
 
-Indicator.prototype.getMin = function (data) {
-    var minimum = 9999999;
-    for (var z=0; z < data.length; z++)
-    {
-        minimum = Math.min(minimum, data[z]);
-    }
-    return minimum;
-};
-
-Indicator.prototype.getMax = function(data) {
-    var maximum = -99999999;
-    for (var z=0; z < data.length; z++)
-    {
-        maximum = Math.max(maximum, data[z]);
-    }
-    return maximum;
-};
-Indicator.prototype.Stoch = function(data, newvalue, previousStoch) {
-    // PREVIOUS VALUES MANAGEMENT;
-    data.push(newvalue);
-    if (data.length > this.Cycle) {
-        data.shift();
-    }
-
-    // FIRST VARIABLES PROCESSING
-    var x = this.getMin(data);
-    var y = this.getMax(data) - x;
-
-    // CALCULATE FastK;
-    if (y > 0) {
-        var output = ((newvalue - x) / y) * 100;
-    }
-    else {
-        var output = previousStoch;
-    }
-
-    //console.log('STOCH VARS>>', newvalue, output, x, y);
-    return output;
+    this.KMA = new SMA(settings.DPeriods);
 }
-Indicator.prototype.wellesSmooth = function(prevStoch, Default) {
 
-    if (this.age <= 1) {
-        var stoch = Default;
+Indicator.prototype.getLowest = function()
+{
+    var low = 99999;
+    for (var i=0; i < this.candles.length;i++){
+        if (this.candles[i].low < low)
+        {
+            low = this.candles[i].low;
+
+        }
+
+
     }
-    else {
-        var stoch = prevStoch + (this.Factor * (Default - prevStoch));
+
+    return low;
+
+}
+Indicator.prototype.getHighest = function()
+{
+    var high = 0;
+    for (var i=0; i < this.candles.length;i++){
+        if (this.candles[i].high > high)
+        {
+            high= this.candles[i].high;
+
+        }
+
+
     }
-    return stoch;
-};
 
-Indicator.prototype.update = function (price) {
+    return high;
 
-    this.signal.update(price);
-    //console.log(this.signal.result);
+}
 
+Indicator.prototype.update = function(candle) {
 
-    // FIRST STOCHASTIC;
-    this.Frac1 = this.Stoch(this.MACDs, this.signal.result, this.Frac1);
-    console.log(this.MACDs);
-    // Smooth, FastD for MACD;
-    this.PF = this.wellesSmooth(this.PF, this.Frac1);
-
-    // SECOND STOCHASTIC;
-    this.Frac2 = this.Stoch(this.PFs, this.PF, this.Frac2);
-
-    // Smooth, FastD for PF;
-    this.PFF = this.wellesSmooth(this.PFF, this.Frac2);
-
-    // RESULT;
-    this.result = this.PFF;
+    this.candles.push(candle);
+    if (this.candles.length > this.KPeriods)
+        this.candles.shift();
 
 
+    var LL = this.getLowest();
+    var HH = this.getHighest()
+
+
+    var K = candle.close - LL;
+    K = K / (HH - LL) * 100;
+
+    this.KMA.update(K);
+
+    this.K = K;
+    this.D = this.KMA.result;
 }
 
 module.exports = Indicator;
