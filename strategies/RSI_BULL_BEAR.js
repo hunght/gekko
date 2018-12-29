@@ -11,7 +11,7 @@
 // req's
 var log = require ('../core/log.js');
 var config = require ('../core/util.js').getConfig();
-
+const double = n=> n*2;
 // strategy
 var strat = {
 	
