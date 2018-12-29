@@ -1,0 +1,4 @@
+#!/bin/bash
+
+REMOTE_HOST="159.89.189.79"
+REMOTE_USER=root
