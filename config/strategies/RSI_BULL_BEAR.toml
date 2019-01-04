@@ -1,16 +1,16 @@
 # SMA Trends
-SMA_long = 1000
-SMA_short = 50
+SMA_long = 310
+SMA_short = 10
 
 # BULL
-BULL_RSI = 10
-BULL_RSI_high = 80
+BULL_RSI = 25
+BULL_RSI_high = 90
 BULL_RSI_low = 60
 
 # BEAR
-BEAR_RSI = 15
-BEAR_RSI_high = 50
-BEAR_RSI_low = 20
+BEAR_RSI = 25
+BEAR_RSI_high = 40
+BEAR_RSI_low = 10
 
 # BULL/BEAR is defined by the longer SMA trends
 # if SHORT over LONG = BULL

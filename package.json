@@ -22,6 +22,7 @@
     "convnetjs": "^0.3.0",
     "gekko": "0.0.9",
     "humanize-duration": "^3.10.0",
+    "irc": "^0.5.2",
     "koa": "^1.2.0",
     "koa-bodyparser": "^2.2.0",
     "koa-cors": "0.0.16",
